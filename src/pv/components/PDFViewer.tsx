@@ -42,7 +42,7 @@ export default function PDFViewer({ pvData, onClose }: PDFViewerProps) {
           <div className="pdf-header">
             <div>
               <div className="pdf-logo">SMAC</div>
-              <div className="pdf-title">PV de Réception Support Terrasse</div>
+              <div className="pdf-title">PV de Réception Support Façade Béton</div>
             </div>
             <div>
               <div className="pdf-ref">{savedPV?.ref || "—"}</div>

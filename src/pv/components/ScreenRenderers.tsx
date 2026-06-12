@@ -48,7 +48,7 @@ export const renderHomeScreen = (
           <div className="scr fade-in">
             <div className="topbar">
               <img src="/smac-logo.png" alt="SMAC" className="tb-logo" />
-              <div className="tb-title">PV de Réception<br />Support Terrasse</div>
+              <div className="tb-title">PV de Réception<br />Support Façade Béton</div>
               <div className="tb-avatar" style={{ background: "#1a1a3e" }}>{userInitials}</div>
             </div>
 

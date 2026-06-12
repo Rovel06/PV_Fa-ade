@@ -7,8 +7,6 @@ import { CURRENT_USER, SAMPLE_PVS, SURFACE_FIELDS, PARTIE_COURANTE_FIELDS, RELEV
 import {
   createPdfDataFromPV,
   downloadPDF,
-  pickImages,
-  uid,
   useToast,
 } from "./pv/helpers";
 import {
@@ -36,7 +34,6 @@ export default function App() {
   const { toasts, push: toast } = useToast();
   const [pvList, setPvList] = React.useState<PV[]>(SAMPLE_PVS);
   const [search, setSearch] = React.useState("");
-  const [step2Errors, setStep2Errors] = React.useState<Record<string, { photo: boolean; comment: boolean }>>({});
   const [lastSavedResult, setLastSavedResult] = React.useState<SavePVResult | null>(null);
 
   const reserveManagement = useReserveManagement(toast);
@@ -113,21 +110,6 @@ export default function App() {
   };
 
   const nextStep = () => {
-    if (appState.step === 2) {
-      const errors: Record<string, { photo: boolean; comment: boolean }> = {};
-      SURFACE_FIELDS.forEach(([key]) => {
-        if (formMgmt.etatSurface[key] !== "Non Conforme") return;
-        const photos = (formMgmt.etatSurface[key + "Photos"] as { id: number; url: string }[]) || [];
-        const comment = (formMgmt.etatSurface[key + "Comment"] as string || "").trim();
-        if (photos.length === 0 || !comment) errors[key] = { photo: photos.length === 0, comment: !comment };
-      });
-      if (Object.keys(errors).length > 0) {
-        setStep2Errors(errors);
-        toast("Photo(s) et commentaire requis pour chaque champ Non Conforme", "error");
-        return;
-      }
-      setStep2Errors({});
-    }
     if (appState.step < 6) appState.setStep((current) => current + 1);
   };
 
@@ -242,26 +224,6 @@ export default function App() {
       return renderStep2(
         formMgmt.etatSurface,
         formMgmt.setEtatSurface,
-        step2Errors,
-        async (key) => {
-          const images = await pickImages();
-          const current = (formMgmt.etatSurface[key + "Photos"] as { id: number; url: string }[]) || [];
-          const slots = 5 - current.length;
-          if (slots > 0) {
-            formMgmt.setEtatSurface((curr) => ({
-              ...curr,
-              [key + "Photos"]: [...current, ...images.slice(0, slots).map((img) => ({ ...img, id: uid() }))],
-            }));
-          }
-        },
-        (key, photoId) => {
-          formMgmt.setEtatSurface((curr) => ({
-            ...curr,
-            [key + "Photos"]: ((curr[key + "Photos"] as { id: number; url: string }[]) || []).filter((p) => p.id !== photoId),
-          }));
-        },
-        (menu) => appState.setPhotoMenu(menu),
-        (photos, title, key) => appState.setGallery({ photos: [...photos], title, key }),
       );
     }
 
