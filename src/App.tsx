@@ -3,7 +3,7 @@ import "./App.css";
 import "./pv/styles.css";
 import { AnnotationModal, PDFViewer, PhotoGallery, PhotoMenu, ProfileModal } from "./pv/components/index";
 import { I } from "./pv/icons";
-import { CURRENT_USER, SAMPLE_PVS, SURFACE_FIELDS, PARTIE_COURANTE_FIELDS, RELEVES_FIELDS, POINT_FIELDS } from "./pv/schema";
+import { CURRENT_USER, SAMPLE_PVS } from "./pv/schema";
 import {
   createPdfDataFromPV,
   downloadPDF,
@@ -51,20 +51,14 @@ export default function App() {
     if (appState.step !== 6) return;
     const firstParticipant = participantMgmt.participants[0];
     if (!firstParticipant) return;
-    const allValues = [
-      ...SURFACE_FIELDS.map(([key]) => formMgmt.etatSurface[key] as string),
-      ...PARTIE_COURANTE_FIELDS.map(([key]) => formMgmt.partieCourante[key]),
-      ...RELEVES_FIELDS.map(([key]) => formMgmt.releves[key]),
-      ...POINT_FIELDS.map(([key]) => formMgmt.points[key]),
-    ];
-    const hasNonConforme = allValues.some((v) => v === "Non Conforme");
-    participantMgmt.updateParticipant(firstParticipant.id, "reception", hasNonConforme ? "NON" : "OUI");
-    if (!hasNonConforme) {
+    const hasReserves = reserveManagement.reserves.length > 0;
+    participantMgmt.updateParticipant(firstParticipant.id, "reception", hasReserves ? "NON" : "OUI");
+    if (!hasReserves) {
       participantMgmt.updateParticipant(firstParticipant.id, "miseEnConformite", new Date().toISOString().split("T")[0]);
     } else {
       participantMgmt.updateParticipant(firstParticipant.id, "miseEnConformite", "");
     }
-  }, [appState.step, formMgmt.etatSurface, formMgmt.partieCourante, formMgmt.releves, formMgmt.points]);
+  }, [appState.step, reserveManagement.reserves.length]);
 
   const goHome = () => {
     if (appState.screen === "form") {
